@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<style>
+	*{margin: 0;padding: 0;}
+	#player{
+		background: #000;
+	}
+</style>
+</head>
+<body>
+<canvas id="player" width="300" height="100"></canvas>
+<script src="http://libs.baidu.com/jquery/1.9.0/jquery.min.js"></script>
+<script src="c_frame_player.js"></script>
+<script>
+	var a = new CFP({
+		'id':'#player',
+		'duration':5000,
+		'total':12,
+		'showFirstFrame':true
+	});
+	a.end=function(){
+		alert('end');
+	}
+</script>
+</body>
+</html>
