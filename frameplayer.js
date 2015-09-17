@@ -1,5 +1,5 @@
 var FramePlayer = (function(){
-	function FramePlayer(args){
+	function FP(args){
 		var self=this;
 		self.o=document.querySelector(args.id);
 		self.duration=args.duration;//ms
@@ -14,6 +14,7 @@ var FramePlayer = (function(){
     self.framesBaseUrl= args.framesBaseUrl || "images/frames/";
     self.preload= false || args.preload;
     self.autoplay=args.autoplay || false;
+    self.loop=args.loop || false;
     if(self.preload==true){
       self.loadImgs();
     }
@@ -21,12 +22,12 @@ var FramePlayer = (function(){
       self.play();
     }
 	}
-  FramePlayer.prototype.loaded=false;
-	FramePlayer.prototype.draw=function(img){
+  FP.prototype.loaded=false;
+	FP.prototype.draw=function(img){
 		this.ctx.clearRect(0,0,this.w,this.h);
 		this.ctx.drawImage(img,0,0,this.w,this.h);
 	}
-	FramePlayer.prototype.loadImgs=function(){
+	FP.prototype.loadImgs=function(){
 		var self=this;
     if(self.loaded)return;
 		for(var i=1;i<=self.total;i++){
@@ -42,7 +43,7 @@ var FramePlayer = (function(){
       if(i==self.total)self.loaded=true;
 		}
 	}
-	FramePlayer.prototype.play=function(){
+	FP.prototype.play=function(){
 		var self=this,
         i=0;
     if(self.frames.length==0){
@@ -52,12 +53,16 @@ var FramePlayer = (function(){
       self.draw(self.frames[i]);
       i++;
       if(i>=self.total){
-        clearInterval(self.loop);
-        if(self.end)self.end();
+        if(self.loop==false){
+          clearInterval(self.loop);
+          if(self.end)self.end();
+        }else{
+          i=0;
+        }
       }
     },self.duration);
 	},
-	FramePlayer.prototype.stop=function(){
+	FP.prototype.stop=function(){
 		var self=this;
 		clearInterval(self.loop);
 		if(self.showFirstFrame){
@@ -66,11 +71,11 @@ var FramePlayer = (function(){
 			self.ctx.clearRect(0,0,self.w,self.h);	
 		}
 	},
-	FramePlayer.prototype.clear=function(){
+	FP.prototype.clear=function(){
 		var self=this;
 		clearInterval(self.loop);
 		self.ctx.clearRect(0,0,self.w,self.h);	
 	},
-	FramePlayer.prototype.end=null;
-	return FramePlayer;
+	FP.prototype.end=null;
+	return FP;
 })();

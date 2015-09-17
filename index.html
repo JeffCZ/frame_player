@@ -16,13 +16,14 @@
 <script>
 var fp1 = new FramePlayer({
   id:"#player",
-  duration:32,
+  duration:100,
   total:12,
   imgFormat:".png",
   framesBaseUrl:"images/daji/",
-  autoplay:true
+  preload:true,
+  loop:true
 });
-//fp1.play();
+fp1.play();
 </script>
 </body>
 </html>
