@@ -1,81 +1,90 @@
 var FramePlayer = (function(){
-	function FP(args){
-		var self=this;
-		self.o=document.querySelector(args.id);
-		self.duration=args.duration;//ms
-		self.total=args.total;
-		self.showFirstFrame=args.showFirstFrame;
-		self.ctx = self.o.getContext("2d");
-		self.w=self.o.width;
-		self.h=self.o.height;
-		self.frames=[];
-		self.loop=null;
-    self.imgFormat= args.imgFormat || '.png';
-    self.framesBaseUrl= args.framesBaseUrl || "images/frames/";
-    self.preload= false || args.preload;
-    self.autoplay=args.autoplay || false;
-    self.loop=args.loop || false;
-    if(self.preload==true){
-      self.loadImgs();
+	function FP(paras){
+    this.opt={
+      id:"",
+      duration : 16,
+      total : 0,
+      showFirstFrame : false,
+      loop: false,
+      imgFormat: '.png',
+      framesBaseUrl: "frames/",
+      autoplay: false
     }
-    if(self.autoplay==true){
-      self.play();
-    }
-	}
-  FP.prototype.loaded=false;
-	FP.prototype.draw=function(img){
-		this.ctx.clearRect(0,0,this.w,this.h);
-		this.ctx.drawImage(img,0,0,this.w,this.h);
-	}
-	FP.prototype.loadImgs=function(){
-		var self=this;
-    if(self.loaded)return;
-		for(var i=1;i<=self.total;i++){
-			var imgString = self.framesBaseUrl+i+self.imgFormat;
-			self.frames.push(new Image());
-			self.frames[i-1].src=imgString;
-			self.frames[i-1].onload=function(){
-				var _img=this;
-				if(self.showFirstFrame && parseInt(_img.src.match(/\d+/g))==1){
-					self.draw(_img);
-				}
-			}
-      if(i==self.total)self.loaded=true;
-		}
-	}
-	FP.prototype.play=function(){
-		var self=this,
-        i=0;
-    if(self.frames.length==0){
-      self.loadImgs();
-    }
-    self.loop=setInterval(function(){
-      self.draw(self.frames[i]);
-      i++;
-      if(i>=self.total){
-        if(self.loop==false){
-          clearInterval(self.loop);
-          if(self.end)self.end();
-        }else{
-          i=0;
-        }
+    if(paras){
+      for(a in paras){
+        this.opt[a]=paras[a];
       }
-    },self.duration);
-	},
-	FP.prototype.stop=function(){
-		var self=this;
-		clearInterval(self.loop);
-		if(self.showFirstFrame){
-			self.draw(self.frames[0]);
-		}else{
-			self.ctx.clearRect(0,0,self.w,self.h);	
-		}
-	},
-	FP.prototype.clear=function(){
-		var self=this;
-		clearInterval(self.loop);
-		self.ctx.clearRect(0,0,self.w,self.h);	
-	},
-	FP.prototype.end=null;
+    }
+    this.init();
+	}
+  FP.prototype={
+    loaded:false,
+    frames:[],
+    init:function(){
+      var self = this;
+      if(self.opt.id){
+        self.canvas=document.querySelector(self.opt.id)
+        self.ctx=self.canvas.getContext("2d")
+        self.w=self.canvas.width
+        self.h=self.canvas.height
+        self.loadImgs(function(){
+          if(self.opt.autoplay){
+            self.play();
+          }
+        });
+      }else{
+        return;
+      }
+    },
+    draw:function(img){
+      var self = this;
+      self.ctx.clearRect(0,0,this.w,this.h);
+      self.ctx.drawImage(img,0,0,this.w,this.h);
+    },
+    loadImgs:function(cb){
+      var self=this;
+      for(var i=0;i<self.opt.total;i++){
+        var imgString = self.opt.framesBaseUrl+(i+1)+self.opt.imgFormat;
+        self.frames.push(new Image());
+        self.frames[i].src=imgString;
+        self.frames[i].setAttribute("data-fp-index",i);
+        self.frames[i].onload=function(){
+          var _img=this;
+          if(self.opt.showFirstFrame && parseInt(_img.src.match(/\d+/g))==1){
+            self.draw(_img);
+          }
+        }
+        if(i==self.opt.total-1){
+          self.loaded=true;
+          cb()
+        };
+      }
+    },
+    play:function(){
+      var self=this,
+          i=self.opt.showFirstFrame?1:0;
+      self.interval=setInterval(function(){
+        console.log(self.opt.duration)
+        self.draw(self.frames[i]);
+        i++;
+        if(i>=self.opt.total){
+          if(self.opt.loop==false){
+            clearInterval(self.interval);
+          }else{
+            i=0;
+          }
+        }
+      },self.opt.duration);
+    },
+    stop:function(){
+      var self=this;
+      clearInterval(self.interval);
+      if(self.opt.showFirstFrame){
+        self.draw(self.frames[0]);
+      }else{
+        self.ctx.clearRect(0,0,self.w,self.h);	
+      }
+    }
+  }
 	return FP;
 })();
