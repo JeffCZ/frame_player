@@ -12,18 +12,26 @@
 </head>
 <body>
 <canvas id="player" width="1440" height="810"></canvas>
+<p id="test"></p>
+<button id="pause" onclick="pause();">pause</button>
+<button id="play" onclick="play();">play</button>
 <script src="frameplayer.js"></script>
 <script>
 var fp1 = new FramePlayer({
-  id:"#player",
-  total:12,
-  duration:300,
-  imgFormat:".png",
-  framesBaseUrl:"images/daji/",
-  autoplay:true,
-  loop:false,
-  showFirstFrame:true
+  id: "player",
+  duration: 1000,
+  imgs: ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png', '11.png', '12.png'],
+  imgsUrl: './images/',
+  autoplay: false,
+  loop: false,
+  showFirstFrame: false,
 });
+function pause(){
+  fp1.pause();
+}
+function play(){
+  fp1.play();
+}
 </script>
 </body>
 </html>

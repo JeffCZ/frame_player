@@ -1,6 +1,6 @@
-#frame_player#
+﻿#frame_player#
 
-基于canvas的帧动画播放器
+一个微小的帧动画组件
 
 
 

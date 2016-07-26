@@ -1,90 +1,88 @@
 var FramePlayer = (function(){
 	function FP(paras){
-    this.opt={
-      id:"",
-      duration : 16,
-      total : 0,
-      showFirstFrame : false,
-      loop: false,
-      imgFormat: '.png',
-      framesBaseUrl: "frames/",
-      autoplay: false
-    }
-    if(paras){
-      for(a in paras){
-        this.opt[a]=paras[a];
-      }
-    }
+    this.cav = document.getElementById(paras.id);
+    this.ctx = this.cav.getContext('2d');
+    this.width = this.cav.width;
+    this.height = this.cav.height;
+    this.duration = paras.duration || 1000;
+    this.imgUrl = paras.imgUrl || 'images/';
+    this.imgs= paras.imgs || [];
+    this.imgsCount = this.imgs ? this.imgs.length : 0;
+    this.autoplay = paras.autoplay || false;
+    this.showFirstFrame = paras.showFirstFrame || false;
+    this.loop = paras.loop || false;
+    this.frames = [];
+    this.framesCount = 0;
+    this.currFrameIndex = 0;
+    this.readyTag = false;
+    this.playingTag = false;
+    this.playInterval = null;
     this.init();
 	}
-  FP.prototype={
-    loaded:false,
-    frames:[],
-    init:function(){
-      var self = this;
-      if(self.opt.id){
-        self.canvas=document.querySelector(self.opt.id)
-        self.ctx=self.canvas.getContext("2d")
-        self.w=self.canvas.width
-        self.h=self.canvas.height
-        self.loadImgs(function(){
-          if(self.opt.autoplay){
-            self.play();
-          }
-        });
-      }else{
-        return;
-      }
-    },
-    draw:function(img){
-      var self = this;
-      self.ctx.clearRect(0,0,this.w,this.h);
-      self.ctx.drawImage(img,0,0,this.w,this.h);
-    },
-    loadImgs:function(cb){
-      var self=this;
-      for(var i=0;i<self.opt.total;i++){
-        var imgString = self.opt.framesBaseUrl+(i+1)+self.opt.imgFormat;
-        self.frames.push(new Image());
-        self.frames[i].src=imgString;
-        self.frames[i].setAttribute("data-fp-index",i);
-        self.frames[i].onload=function(){
-          var _img=this;
-          if(self.opt.showFirstFrame && parseInt(_img.src.match(/\d+/g))==1){
-            self.draw(_img);
-          }
-        }
-        if(i==self.opt.total-1){
-          self.loaded=true;
-          cb()
-        };
-      }
-    },
-    play:function(){
-      var self=this,
-          i=self.opt.showFirstFrame?1:0;
-      self.interval=setInterval(function(){
-        console.log(self.opt.duration)
-        self.draw(self.frames[i]);
-        i++;
-        if(i>=self.opt.total){
-          if(self.opt.loop==false){
-            clearInterval(self.interval);
-          }else{
-            i=0;
-          }
-        }
-      },self.opt.duration);
-    },
-    stop:function(){
-      var self=this;
-      clearInterval(self.interval);
-      if(self.opt.showFirstFrame){
-        self.draw(self.frames[0]);
-      }else{
-        self.ctx.clearRect(0,0,self.w,self.h);	
+  FP.prototype.loadImg = function(src, index){
+    var _this = this,
+        img = new Image(),
+        loadCalculator = 0;
+    img.onload = function(){
+      _this.frames[index] = this;
+      _this.framesCount ++;
+
+      if(_this.framesCount >= _this.imgsCount){
+        // 图片全部加载完成
+        _this.ready();
       }
     }
+    img.src = src;
+  }
+  FP.prototype.preLoadImg = function(){
+    var _this = this;
+    for(var i = 0; i < _this.imgsCount; i++){
+      _this.loadImg(_this.imgUrl + _this.imgs[i], i);
+    }
+  }
+  FP.prototype.ready = function(){
+    var _this = this;
+    _this.readyTag = true;
+    if(this.showFirstFrame) _this.draw();
+    if(_this.autoplay) _this.play();
+  }
+  FP.prototype.draw = function(){
+    var _this = this,
+        currFrame = _this.frames[_this.currFrameIndex];
+    _this.ctx.clearRect(0, 0, _this.width, _this.height);
+    _this.ctx.drawImage(currFrame, 0, 0, _this.width, _this.height);
+  }
+  FP.prototype.play = function(){
+    var _this = this;
+    if(_this.playingTag == false){
+      _this.playingTag = true;
+      _this.draw()
+      _this.playInterval = setInterval(function(){
+        _this.currFrameIndex ++;
+        if(_this.currFrameIndex >= _this.imgsCount){
+          clearInterval(_this.playInterval);
+          _this.end();
+        }else{
+          _this.draw();
+        }
+      }, _this.duration / _this.imgsCount);
+    }
+  }
+  FP.prototype.pause = function(){
+    var _this = this;
+    clearInterval(_this.playInterval);
+    _this.playingTag = false;
+    console.log('pause')
+  }
+  FP.prototype.end = function(){
+    var _this = this;
+    _this.playingTag = false;
+    _this.currFrameIndex = 0;
+    console.log('end')
+  }
+  FP.prototype.init=function(){
+    var _this = this;
+    _this.preLoadImg();
   }
 	return FP;
 })();
