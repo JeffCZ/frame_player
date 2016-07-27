@@ -17,6 +17,10 @@ var FramePlayer = (function(){
     this.readyTag = false;
     this.playingTag = false;
     this.playInterval = null;
+    this.onReady = paras.onReady;
+    this.onPlay = paras.onPlay;
+    this.onPause = paras.onPause;
+    this.onEnd = paras.onEnd;
     this.init();
 	}
   FP.prototype.loadImg = function(src, index){
@@ -45,6 +49,7 @@ var FramePlayer = (function(){
     _this.readyTag = true;
     if(this.showFirstFrame) _this.draw();
     if(_this.autoplay) _this.play();
+    if(_this.onReady) _this.onReady();
   }
   FP.prototype.draw = function(){
     var _this = this,
@@ -55,30 +60,36 @@ var FramePlayer = (function(){
   FP.prototype.play = function(){
     var _this = this;
     if(_this.playingTag == false){
+    
+      if(_this.onPlay) _this.onPlay();
+      
       _this.playingTag = true;
       _this.draw()
       _this.playInterval = setInterval(function(){
         _this.currFrameIndex ++;
-        if(_this.currFrameIndex >= _this.imgsCount){
+        if(_this.currFrameIndex >= _this.framesCount){
           clearInterval(_this.playInterval);
           _this.end();
         }else{
           _this.draw();
         }
-      }, _this.duration / _this.imgsCount);
+      }, _this.duration / _this.framesCount);
     }
   }
   FP.prototype.pause = function(){
     var _this = this;
     clearInterval(_this.playInterval);
     _this.playingTag = false;
-    console.log('pause')
+    if(_this.onPause) _this.onPause();
   }
   FP.prototype.end = function(){
     var _this = this;
     _this.playingTag = false;
     _this.currFrameIndex = 0;
-    console.log('end')
+    if(_this.onEnd) _this.onEnd();
+    if(_this.loop){
+      _this.play();
+    }
   }
   FP.prototype.init=function(){
     var _this = this;
