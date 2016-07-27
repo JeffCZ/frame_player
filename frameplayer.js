@@ -47,9 +47,9 @@ var FramePlayer = (function(){
   FP.prototype.ready = function(){
     var _this = this;
     _this.readyTag = true;
-    if(this.showFirstFrame) _this.draw();
-    if(_this.autoplay) _this.play();
     if(_this.onReady) _this.onReady();
+    if(_this.showFirstFrame) _this.draw();
+    if(_this.autoplay) _this.play();
   }
   FP.prototype.draw = function(){
     var _this = this,
@@ -74,6 +74,7 @@ var FramePlayer = (function(){
           _this.draw();
         }
       }, _this.duration / _this.framesCount);
+      
     }
   }
   FP.prototype.pause = function(){
