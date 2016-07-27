@@ -6,8 +6,9 @@ var FramePlayer = (function(){
     this.height = this.cav.height;
     this.duration = paras.duration || 1000;
     this.imgUrl = paras.imgUrl || 'images/';
-    this.imgs= paras.imgs || [];
-    this.imgsCount = this.imgs ? this.imgs.length : 0;
+    this.imgs = paras.imgs || [];
+    this.imgsCount = this.imgs.length;
+    this.useSpriteImg = paras.useSpriteImg || (this.imgsCount == 1), //目前假设雪碧图为横向排列，待优化
     this.autoplay = paras.autoplay || false;
     this.showFirstFrame = paras.showFirstFrame || false;
     this.loop = paras.loop || false;
@@ -35,6 +36,9 @@ var FramePlayer = (function(){
       _this.frames[index] = this;
       _this.framesCount ++;
       if(_this.framesCount >= _this.imgsCount){
+        if(_this.useSpriteImg){
+          _this.framesCount = _this.frames[0].width / _this.width;
+        }
         _this.ready();
       }
     }
@@ -48,10 +52,15 @@ var FramePlayer = (function(){
   FP.prototype.ready = function(){
     this.readyTag = true;
     if(this.onReady) this.onReady();
-    //加载完成之后做canvas缓存
-    for(var i = 0; i < this.framesCount; i++){
-      this.cacheCtx.drawImage(this.frames[i], 0, 0);
+    //加载完成之后做canvas缓存 待优化
+    if(this.useSpriteImg){
+      this.cacheCtx.drawImage(this.frames[0], 0, 0);
+    }else{
+      for(var i = 0; i < this.framesCount; i++){
+        this.cacheCtx.drawImage(this.frames[i], 0, 0);
+      }
     }
+    
     if(this.showFirstFrame) this.draw();
     if(this.autoplay) this.play();
   }
@@ -59,17 +68,23 @@ var FramePlayer = (function(){
     var _this = this,
         currFrame = _this.frames[_this.currFrameIndex];
     _this.ctx.clearRect(0, 0, _this.width, _this.height);
-    _this.ctx.drawImage(currFrame, 0, 0);
+    if(_this.useSpriteImg){
+      _this.ctx.drawImage(_this.frames[0], (0-_this.currFrameIndex)*_this.width, 0);
+    }else{
+      _this.ctx.drawImage(currFrame, 0, 0);
+    }
   }
   FP.prototype.play = function(){
     var _this = this;
     if(!_this.playingTag){
       if(_this.onPlay) _this.onPlay();
       _this.playingTag = true;
-      _this.draw();
       
+      
+      _this.draw();
       _this.playInterval = setInterval(function(){
         _this.currFrameIndex ++;
+        
         if(_this.currFrameIndex >= _this.framesCount){
           clearInterval(_this.playInterval);
           _this.end();
@@ -77,6 +92,7 @@ var FramePlayer = (function(){
           _this.draw();
         }
       }, _this.duration / _this.framesCount);
+      
       
     }
   }

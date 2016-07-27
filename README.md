@@ -13,6 +13,8 @@
         imgs: ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png', '11.png', '12.png'],
 		// 图片路径
         imgsUrl: './images/',
+    // 是否使用雪碧图，目前雪碧图默认为横向排列，待优化
+        useSpriteImg: false
 		// 加载完自动播放
         autoplay: false,
 		// 循环播放

@@ -18,22 +18,21 @@
 
 <body>
     <canvas id="player" width="1440" height="810"></canvas>
-    <button id="pause" onclick="pause();">pause</button>
-    <button id="play" onclick="play();">play</button>
+    <canvas id="player2" width="141" height="85"></canvas>
     <script src="frameplayer.js"></script>
     <script>
-    var tag1,tag2;
     var fp1 = new FramePlayer({
         id: "player",
         duration: 240,
         imgs: ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png', '11.png', '12.png'],
         imgsUrl: './images/',
-        autoplay: false,
-        loop: false,
+        autoplay: true,
+        loop: true,
         showFirstFrame: false,
         onInit: function(){
             tag1 = new Date();
         },
+        /*
         onReady: function() {
             console.log('ready after: ' + (new Date() - tag1))
         },
@@ -47,15 +46,18 @@
         onEnd: function() {
             console.log('play duration :' + (new Date() - tag2))
         }
+        */
     });
-
-    function pause() {
-        fp1.pause();
-    }
-
-    function play() {
-        fp1.play();
-    }
+    var fp2 = new FramePlayer({
+        id: "player2",
+        duration: 1000,
+        imgs: ['bird.png'],
+        useSpriteImg: true,
+        imgsUrl: './images/',
+        autoplay: true,
+        loop: true,
+        showFirstFrame: true
+    });
     </script>
 </body>
 
