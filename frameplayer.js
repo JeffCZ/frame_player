@@ -21,50 +21,53 @@ var FramePlayer = (function(){
     this.onPlay = paras.onPlay;
     this.onPause = paras.onPause;
     this.onEnd = paras.onEnd;
+    this.onInit = paras.onInit;
+    this.cache = document.createElement('canvas');
+    this.cache.width = this.width;
+    this.cache.height = this.height;
+    this.cacheCtx = this.cache.getContext('2d');
     this.init();
 	}
   FP.prototype.loadImg = function(src, index){
     var _this = this,
-        img = new Image(),
-        loadCalculator = 0;
+        img = new Image();
     img.onload = function(){
       _this.frames[index] = this;
       _this.framesCount ++;
-
       if(_this.framesCount >= _this.imgsCount){
-        // 图片全部加载完成
         _this.ready();
       }
     }
     img.src = src;
   }
   FP.prototype.preLoadImg = function(){
-    var _this = this;
-    for(var i = 0; i < _this.imgsCount; i++){
-      _this.loadImg(_this.imgUrl + _this.imgs[i], i);
+    for(var i = 0; i < this.imgsCount; i++){
+      this.loadImg(this.imgUrl + this.imgs[i], i);
     }
   }
   FP.prototype.ready = function(){
-    var _this = this;
-    _this.readyTag = true;
-    if(_this.onReady) _this.onReady();
-    if(_this.showFirstFrame) _this.draw();
-    if(_this.autoplay) _this.play();
+    this.readyTag = true;
+    if(this.onReady) this.onReady();
+    //加载完成之后做canvas缓存
+    for(var i = 0; i < this.framesCount; i++){
+      this.cacheCtx.drawImage(this.frames[i], 0, 0);
+    }
+    if(this.showFirstFrame) this.draw();
+    if(this.autoplay) this.play();
   }
   FP.prototype.draw = function(){
     var _this = this,
         currFrame = _this.frames[_this.currFrameIndex];
     _this.ctx.clearRect(0, 0, _this.width, _this.height);
-    _this.ctx.drawImage(currFrame, 0, 0, _this.width, _this.height);
+    _this.ctx.drawImage(currFrame, 0, 0);
   }
   FP.prototype.play = function(){
     var _this = this;
-    if(_this.playingTag == false){
-    
+    if(!_this.playingTag){
       if(_this.onPlay) _this.onPlay();
-      
       _this.playingTag = true;
-      _this.draw()
+      _this.draw();
+      
       _this.playInterval = setInterval(function(){
         _this.currFrameIndex ++;
         if(_this.currFrameIndex >= _this.framesCount){
@@ -88,12 +91,11 @@ var FramePlayer = (function(){
     _this.playingTag = false;
     _this.currFrameIndex = 0;
     if(_this.onEnd) _this.onEnd();
-    if(_this.loop){
-      _this.play();
-    }
+    if(_this.loop) _this.play();
   }
   FP.prototype.init=function(){
     var _this = this;
+    if(_this.onInit) _this.onInit();
     _this.preLoadImg();
   }
 	return FP;

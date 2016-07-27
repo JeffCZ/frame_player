@@ -22,25 +22,30 @@
     <button id="play" onclick="play();">play</button>
     <script src="frameplayer.js"></script>
     <script>
+    var tag1,tag2;
     var fp1 = new FramePlayer({
         id: "player",
-        duration: 800,
+        duration: 240,
         imgs: ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png', '11.png', '12.png'],
         imgsUrl: './images/',
         autoplay: false,
         loop: false,
-        showFirstFrame: true,
+        showFirstFrame: false,
+        onInit: function(){
+            tag1 = new Date();
+        },
         onReady: function() {
-            console.log(this.framesCount)
+            console.log('ready after: ' + (new Date() - tag1))
         },
         onPlay: function() {
             console.log('play')
+            tag2 = new Date();
         },
         onPause: function() {
             console.log('pause')
         },
         onEnd: function() {
-            console.log('end')
+            console.log('play duration :' + (new Date() - tag2))
         }
     });
 
